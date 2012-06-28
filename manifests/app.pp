@@ -15,7 +15,7 @@ define unicorn::app (
   ) {
 
   # get the common stuff, like the unicon package(s)
-  include unicorn
+  require unicorn
 
   if "${log_stds}" in [ 'true', 'yes', 'present' ] {
     if $stdlog_path == '' {
