@@ -2,7 +2,6 @@ define unicorn::app (
     $approot,
     $unicorn_pidfile,
     $unicorn_socket,
-    $rack_file,
     $config_template          = 'unicorn/config_unicorn.config.rb.erb',
     $initscript               = "unicorn/initscript_newer.erb", # default template location
     $unicorn_backlog          = '2048',
@@ -48,23 +47,17 @@ define unicorn::app (
 
   file {
     "/etc/init.d/unicorn_${name}":
-        owner   => root,
-        group   => root,
-        mode    => 755,
-        content => template("${initscript}"),
-        notify  => Service["unicorn_${name}"];
+      owner   => root,
+      group   => root,
+      mode    => 755,
+      content => template("${initscript}"),
+      notify  => Service["unicorn_${name}"];
     $config:
-        owner   => root,
-        group   => root,
-        mode    => 644,
-        content => template( $config_template ),
-        notify  => Service["unicorn_${name}"];
-    "${approot}/config.ru":
-        owner  => $unicorn_user,
-        group  => $unicorn_group,
-        mode   => 644,
-        source => $rack_file,
-        notify  => Service["unicorn_${name}"],
+      owner   => root,
+      group   => root,
+      mode    => 644,
+      content => template( $config_template ),
+      notify  => Service["unicorn_${name}"];
   }
 
 }
