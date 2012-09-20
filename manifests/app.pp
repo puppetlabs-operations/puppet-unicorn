@@ -35,14 +35,13 @@ define unicorn::app (
     $config = $config_file
   }
 
-  service {
-    "unicorn_${name}":
-      ensure     => running,
-      enable     => true,
-      hasstatus  => true,
-      hasrestart => true,
-      restart    => "/etc/init.d/unicorn_${name} reload",
-      require    => File["/etc/init.d/unicorn_${name}"],
+  service { "unicorn_${name}":
+    ensure     => running,
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    restart    => "/etc/init.d/unicorn_${name} reload",
+    require    => File["/etc/init.d/unicorn_${name}"],
   }
 
   file {
@@ -50,15 +49,13 @@ define unicorn::app (
       owner   => root,
       group   => root,
       mode    => 755,
-      content => template("${initscript}"),
+      content => template($initscript),
       notify  => Service["unicorn_${name}"];
     $config:
       owner   => root,
       group   => root,
       mode    => 644,
-      content => template( $config_template ),
+      content => template($config_template),
       notify  => Service["unicorn_${name}"];
   }
-
 }
-
