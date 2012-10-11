@@ -1,9 +1,10 @@
-class unicorn {
+class unicorn($provider = 'gem', $ensure = 'present') {
 
   # The unicorn gem has prerequisites that requires building native extensions.
   require ruby::dev
 
-  package { 'unicorn': ensure => installed, provider => gem; }
-
+  package { 'unicorn':
+    ensure   => $ensure,
+    provider => $provider,
+  }
 }
-
