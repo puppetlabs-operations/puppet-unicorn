@@ -39,7 +39,8 @@ define unicorn::app (
     ensure     => running,
     enable     => true,
     hasstatus  => true,
-    hasrestart => true,
+    start      => "/etc/init.d/unicorn_${name} start",
+    stop       => "/etc/init.d/unicorn_${name} stop",
     restart    => "/etc/init.d/unicorn_${name} reload",
     require    => File["/etc/init.d/unicorn_${name}"],
   }
