@@ -78,6 +78,7 @@ case "$1" in
 
     status)
         status_of_proc -p "$PIDFILE" "${DAEMON}"
+        RETVAL=$?
         ;;
     *)
         echo "Usage: $0 {start|stop|restart|status}" >&2
