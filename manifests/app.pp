@@ -10,7 +10,8 @@ define unicorn::app (
     $log_stds                 = 'false', # yes I know what it looks like.
     $unicorn_user             = 'root',
     $unicorn_group            = 'root',
-    $config_file              = ''
+    $config_file              = '',
+    $rack_env                 = 'production',
   ) {
 
   # get the common stuff, like the unicon package(s)

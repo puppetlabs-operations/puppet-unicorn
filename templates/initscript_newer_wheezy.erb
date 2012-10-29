@@ -23,11 +23,12 @@ APP_ROOT=<%= approot %> # we don't need this, as the config contains the worker 
 lockfile=/var/lock/unicorn-<%= name %>
 PIDFILE="<%= unicorn_pidfile %>"
 
-ENV=production
+ENV=<%= rack_env %>
 RETVAL=0
 DAEMON="/usr/local/bin/unicorn"  # ideally ruby version could be set by a variable??
 DAEMON_OPTS="-D -E ${ENV} -c <%= config %>"
 export RAILS_ENV="$ENV"
+export RACK_ENV="$ENV"
 
 . /lib/lsb/init-functions
 
