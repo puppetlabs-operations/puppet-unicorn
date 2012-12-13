@@ -14,7 +14,7 @@ stderr_path '<%= unicorn_stdlog_path %>/stderr.log'
 stdout_path '<%= unicorn_stdlog_path %>/stdout.log'
 <% end -%>
 
-preload_app false # We have turned this off, as we don't use REE.
+preload_app <%= preload_app %>
 
 # See http://unicorn.bogomips.org/SIGNALS.html for what this does.
 before_fork do |server, worker|

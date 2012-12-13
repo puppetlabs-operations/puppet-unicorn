@@ -12,6 +12,7 @@ define unicorn::app (
     $unicorn_group            = 'root',
     $config_file              = '',
     $rack_env                 = 'production',
+    $preload_app              = false,
   ) {
 
   # get the common stuff, like the unicon package(s)
