@@ -68,7 +68,7 @@ case "$1" in
         restart
         ;;
     reload)
-        start-stop-daemon --stop --quiet --signal HUP --pidfile $PIDFILE
+        start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
         ;;
     reopen-logs)
         # I am unsure about the use of echos here.
