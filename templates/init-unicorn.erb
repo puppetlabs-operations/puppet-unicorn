@@ -26,7 +26,7 @@ RETVAL=0
 
 start() {
     log_daemon_msg "Starting Unicorn server for <%= name %>" "unicorn_<%= name %>"
-    start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+    start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --startas $DAEMON -- $DAEMON_OPTS
     RETVAL=$?
     log_end_msg $RETVAL
 }
