@@ -6,8 +6,7 @@ define unicorn::app (
     $initscript      = "unicorn/init-unicorn.erb",
     $backlog         = '2048',
     $workers         = $::processorcount,
-    $stdlog_path     = '',
-    $log_stds        = 'false', # yes I know what it looks like.
+    $logdir          = "${approot}/log",
     $unicorn_user    = 'root',
     $unicorn_group   = 'root',
     $config_file     = '',
@@ -17,15 +16,6 @@ define unicorn::app (
 
   # get the common stuff, like the unicorn package(s)
   require unicorn
-
-  if "${log_stds}" in [ 'true', 'yes', 'present' ] {
-    if $stdlog_path == '' {
-      $unicorn_stdlog_path = "${approot}/log/"
-    } else {
-      $unicorn_stdlog_path = $stdlog_path
-    }
-    $unicorn_log_stdout = true  # easier than parsing it all in ERB
-  }
 
   # If we have been given a config path, use it, if not, make one up.
   # This _may_ not be the most secure, as it should live outside of

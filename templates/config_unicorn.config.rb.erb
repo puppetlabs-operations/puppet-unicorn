@@ -9,9 +9,10 @@ listen '<%= socket %>', :backlog => <%= backlog %>
 timeout 300
 pid "<%= pidfile %>"
 client_body_buffer_size 524288
-<% if has_variable?( 'unicorn_log_stdout' ) and unicorn_log_stdout == true -%>
-stderr_path '<%= unicorn_stdlog_path %>/stderr.log'
-stdout_path '<%= unicorn_stdlog_path %>/stdout.log'
+
+<% if @logdir -%>
+stderr_path '<%= @logdir %>/stderr.log'
+stdout_path '<%= @logdir %>/stdout.log'
 <% end -%>
 
 preload_app <%= preload_app %>
