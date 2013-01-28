@@ -30,14 +30,14 @@ before_fork do |server, worker|
 end
 
 
-<% if has_variable?( 'unicorn_user' ) and unicorn_user != '' and unicorn_user != 'root' and has_variable?( 'unicorn_group' ) and unicorn_group != '' and unicorn_group != 'root' -%>
+<% if (@user and @user != 'root') and (@group and @group != 'root') -%>
 # Stolen from https://github.com/blog/517-unicorn
 after_fork do |server, worker|
 
   begin
     uid, gid = Process.euid, Process.egid
-    user  = '<%= unicorn_user %>'
-    group = '<%= unicorn_group %>'
+    user  = '<%= @user %>'
+    group = '<%= @group %>'
     target_uid = Etc.getpwnam(user).uid
     target_gid = Etc.getgrnam(group).gid
     worker.tmp.chown(target_uid, target_gid)
