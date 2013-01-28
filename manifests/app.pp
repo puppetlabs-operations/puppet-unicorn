@@ -1,7 +1,7 @@
 define unicorn::app (
     $approot,
     $pidfile,
-    $unicorn_socket,
+    $socket,
     $config_template = 'unicorn/config_unicorn.config.rb.erb',
     $initscript      = "unicorn/init-unicorn.erb",
     $unicorn_backlog = '2048',

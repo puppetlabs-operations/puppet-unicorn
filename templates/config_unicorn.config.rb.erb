@@ -5,7 +5,7 @@ rails_env = ENV['RAILS_ENV'] || 'production'
 
 worker_processes <%= workers %>
 working_directory '<%= approot %>'
-listen '<%= unicorn_socket %>', :backlog => <%= unicorn_backlog %>
+listen '<%= socket %>', :backlog => <%= unicorn_backlog %>
 timeout 300
 pid "<%= pidfile %>"
 client_body_buffer_size 524288
