@@ -57,7 +57,7 @@ reload() {
     oldpid=$(cat $PIDFILE)
     start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
 
-    sleep 4
+    sleep 5
     kill -0 $oldpid 2>/dev/null 1>/dev/null
     test $? -eq '1'
     RETVAL=$?
