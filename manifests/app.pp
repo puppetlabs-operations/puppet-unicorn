@@ -2,17 +2,17 @@ define unicorn::app (
     $approot,
     $unicorn_pidfile,
     $unicorn_socket,
-    $config_template          = 'unicorn/config_unicorn.config.rb.erb',
-    $initscript               = "unicorn/init-unicorn.erb",
-    $unicorn_backlog          = '2048',
-    $unicorn_worker_processes = $::processorcount,
-    $stdlog_path              = '',
-    $log_stds                 = 'false', # yes I know what it looks like.
-    $unicorn_user             = 'root',
-    $unicorn_group            = 'root',
-    $config_file              = '',
-    $rack_env                 = 'production',
-    $preload_app              = false,
+    $config_template = 'unicorn/config_unicorn.config.rb.erb',
+    $initscript      = "unicorn/init-unicorn.erb",
+    $unicorn_backlog = '2048',
+    $workers         = $::processorcount,
+    $stdlog_path     = '',
+    $log_stds        = 'false', # yes I know what it looks like.
+    $unicorn_user    = 'root',
+    $unicorn_group   = 'root',
+    $config_file     = '',
+    $rack_env        = 'production',
+    $preload_app     = false,
   ) {
 
   # get the common stuff, like the unicorn package(s)

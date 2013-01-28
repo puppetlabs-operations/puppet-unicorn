@@ -3,7 +3,7 @@
 
 rails_env = ENV['RAILS_ENV'] || 'production'
 
-worker_processes <%= unicorn_worker_processes %>
+worker_processes <%= workers %>
 working_directory '<%= approot %>'
 listen '<%= unicorn_socket %>', :backlog => <%= unicorn_backlog %>
 timeout 300
