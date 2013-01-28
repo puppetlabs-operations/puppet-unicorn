@@ -88,7 +88,7 @@ case "$1" in
         reopen_logs
         ;;
     status)
-        status_of_proc -p "$PIDFILE" "${DAEMON}"
+        status_of_proc -p "$PIDFILE" "<%= name %>"
         RETVAL=$?
         ;;
     *)
