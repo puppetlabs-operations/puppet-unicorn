@@ -25,14 +25,14 @@ RETVAL=0
 . /lib/lsb/init-functions
 
 start() {
-    log_daemon_msg "Starting Unicorn server for <%= name %>" "unicorn_<%= name %>"
+    log_daemon_msg "Starting Unicorn server" "unicorn_<%= name %>"
     start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --chdir $APPROOT --startas $DAEMON -- $DAEMON_OPTS
     RETVAL=$?
     log_end_msg $RETVAL
 }
 
 stop() {
-    log_daemon_msg "Stopping Unicorn server for <%= name %>" "unicorn_<%= name %>"
+    log_daemon_msg "Stopping Unicorn server" "unicorn_<%= name %>"
     start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
     RETVAL=$?
     log_end_msg $RETVAL
