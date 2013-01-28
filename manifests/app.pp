@@ -4,7 +4,7 @@ define unicorn::app (
     $socket,
     $config_template = 'unicorn/config_unicorn.config.rb.erb',
     $initscript      = "unicorn/init-unicorn.erb",
-    $unicorn_backlog = '2048',
+    $backlog         = '2048',
     $workers         = $::processorcount,
     $stdlog_path     = '',
     $log_stds        = 'false', # yes I know what it looks like.
