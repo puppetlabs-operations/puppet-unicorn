@@ -15,7 +15,7 @@ define unicorn::app (
     $preload_app              = false,
   ) {
 
-  # get the common stuff, like the unicon package(s)
+  # get the common stuff, like the unicorn package(s)
   require unicorn
 
   if "${log_stds}" in [ 'true', 'yes', 'present' ] {
@@ -44,10 +44,19 @@ define unicorn::app (
     start      => "/etc/init.d/unicorn_${name} start",
     stop       => "/etc/init.d/unicorn_${name} stop",
     restart    => "/etc/init.d/unicorn_${name} reload",
-    require    => File["/etc/init.d/unicorn_${name}"],
+    require    => [
+      File["/etc/init.d/unicorn_${name}"],
+      File["/etc/default/unicorn_${name}"],
+    ],
   }
 
   file {
+    "/etc/default/unicorn_${name}":
+      owner   => root,
+      group   => root,
+      mode    => 644,
+      content => template("unicorn/default-unicorn.erb"),
+      notify  => Service["unicorn_${name}"];
     "/etc/init.d/unicorn_${name}":
       owner   => root,
       group   => root,

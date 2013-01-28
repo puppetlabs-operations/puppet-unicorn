@@ -1,0 +1,10 @@
+DAEMON="/usr/local/bin/unicorn"  # ideally ruby version could be set by a variable??
+
+NAME="<%= name %>"
+
+ENV="<%= rack_env %>"
+PIDFILE="<%= unicorn_pidfile %>"
+DAEMON_OPTS="-D -E ${ENV} -c <%= config %>"
+
+export RAILS_ENV="$ENV"
+export RACK_ENV="$ENV"

@@ -18,36 +18,24 @@
 # Short-Description: <%= name %> runnning in Unicorn
 ### END INIT INFO
 
+. /etc/default/unicorn_<%= name %>
 
-APP_ROOT=<%= approot %> # we don't need this, as the config contains the worker dir.
-lockfile=/var/lock/unicorn-<%= name %>
-PIDFILE="<%= unicorn_pidfile %>"
-
-ENV=<%= rack_env %>
 RETVAL=0
-DAEMON="/usr/local/bin/unicorn"  # ideally ruby version could be set by a variable??
-DAEMON_OPTS="-D -E ${ENV} -c <%= config %>"
-export RAILS_ENV="$ENV"
-export RACK_ENV="$ENV"
 
 . /lib/lsb/init-functions
 
 start() {
     log_daemon_msg "Starting Unicorn server for <%= name %>" "unicorn_<%= name %>"
-    if start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS; then
-      log_end_msg 0
-    else
-      log_end_msg 1
-    fi
+    start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+    RETVAL=$?
+    log_end_msg $RETVAL
 }
 
 stop() {
     log_daemon_msg "Stopping Unicorn server for <%= name %>" "unicorn_<%= name %>"
-    if start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE; then
-      log_end_msg 0
-    else
-      log_end_msg 1
-    fi
+    start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+    RETVAL=$?
+    log_end_msg $RETVAL
 }
 
 restart() {
@@ -55,6 +43,32 @@ restart() {
     sleep 1
     start
     log_end_msg $?
+}
+
+# Issue a hot reload of the unicorn master process.
+#
+# Status checking is done by grabbing the old PID, trying the reload, waiting,
+# and making sure the old master process is dead. If it's alive, the reload
+# failed; if it's dead, the # reload succeeded.
+#
+reload() {
+    log_daemon_msg "Reloading Unicorn master and worker processes" <%= name %>
+
+    oldpid=$(cat $PIDFILE)
+    start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
+
+    sleep 4
+    kill -0 $oldpid 2>/dev/null 1>/dev/null
+    test $? -eq '1'
+    RETVAL=$?
+    log_end_msg $RETVAL
+}
+
+reopen_logs() {
+    log_daemon_msg "Reopening Unicorn logs" <%= name %>
+    start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE
+    RETVAL=$?
+    log_end_msg $RETVAL
 }
 
 case "$1" in
@@ -68,15 +82,11 @@ case "$1" in
         restart
         ;;
     reload)
-        start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
+        reload
         ;;
     reopen-logs)
-        # I am unsure about the use of echos here.
-        echo -n "Reopening <%= name %> logs: "
-        start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE
-        echo "<%= name %>."
+        reopen_logs
         ;;
-
     status)
         status_of_proc -p "$PIDFILE" "${DAEMON}"
         RETVAL=$?
