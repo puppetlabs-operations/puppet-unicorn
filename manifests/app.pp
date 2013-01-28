@@ -1,18 +1,18 @@
 define unicorn::app (
-    $approot,
-    $pidfile,
-    $socket,
-    $backlog         = '2048',
-    $workers         = $::processorcount,
-    $user            = 'root',
-    $group           = 'root',
-    $config_file     = '',
-    $config_template = 'unicorn/config_unicorn.config.rb.erb',
-    $initscript      = "unicorn/init-unicorn.erb",
-    $logdir          = "${approot}/log",
-    $rack_env        = 'production',
-    $preload_app     = false,
-  ) {
+  $approot,
+  $pidfile,
+  $socket,
+  $backlog         = '2048',
+  $workers         = $::processorcount,
+  $user            = 'root',
+  $group           = 'root',
+  $config_file     = '',
+  $config_template = 'unicorn/config_unicorn.config.rb.erb',
+  $initscript      = "unicorn/init-unicorn.erb",
+  $logdir          = "${approot}/log",
+  $rack_env        = 'production',
+  $preload_app     = false,
+) {
 
   # get the common stuff, like the unicorn package(s)
   require unicorn
