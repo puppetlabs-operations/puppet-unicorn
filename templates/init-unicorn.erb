@@ -49,7 +49,7 @@ restart() {
 #
 # Status checking is done by grabbing the old PID, trying the reload, waiting,
 # and making sure the old master process is dead. If it's alive, the reload
-# failed; if it's dead, the # reload succeeded.
+# failed; if it's dead, the reload succeeded.
 #
 reload() {
     log_daemon_msg "Reloading Unicorn master and worker processes" <%= name %>
