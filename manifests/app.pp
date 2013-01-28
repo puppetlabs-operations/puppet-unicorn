@@ -1,6 +1,6 @@
 define unicorn::app (
     $approot,
-    $unicorn_pidfile,
+    $pidfile,
     $unicorn_socket,
     $config_template = 'unicorn/config_unicorn.config.rb.erb',
     $initscript      = "unicorn/init-unicorn.erb",
