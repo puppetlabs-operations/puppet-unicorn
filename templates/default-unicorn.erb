@@ -1,7 +1,8 @@
 # Configuration variables for <%= name %>. This file is being managed by
 # Puppet; changes to this file will be reverted.
 
-DAEMON="/usr/local/bin/unicorn"  # ideally ruby version could be set by a variable??
+DAEMON="<%= daemon %>"
+DAEMON_OPTS="<%= daemon_opts %>"
 
 # This configuration information is needed if the application is being launched
 # with bundler. The init script will need to chdir into the approot wehn 
@@ -12,7 +13,6 @@ NAME="<%= name %>"
 
 ENV="<%= rack_env %>"
 PIDFILE="<%= pidfile %>"
-DAEMON_OPTS="-D -E ${ENV} -c <%= config %>"
 
 export RAILS_ENV="$ENV"
 export RACK_ENV="$ENV"

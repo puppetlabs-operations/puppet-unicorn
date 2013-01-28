@@ -12,6 +12,7 @@ define unicorn::app (
   $logdir          = "${approot}/log",
   $rack_env        = 'production',
   $preload_app     = false,
+  $source          = 'system',
 ) {
 
   # get the common stuff, like the unicorn package(s)
@@ -25,6 +26,22 @@ define unicorn::app (
     $config = "${approot}/config/unicorn.config.rb"
   } else {
     $config = $config_file
+  }
+
+  $unicorn_opts = "-D -E '${rack_env}' -c ${config}"
+  # XXX Debian Wheezy specific
+  case $source {
+    'system': {
+      $daemon = '/usr/local/bin/unicorn'
+      $daemon_opts = $unicorn_opts
+    }
+    'bundler': {
+      $daemon = '/usr/local/bin/bundle'
+      $daemon_opts = "exec unicorn ${unicorn_opts}"
+    }
+    default: {
+      fail("unicorn::app doesn't install daemon source '${source}'")
+    }
   }
 
   service { "unicorn_${name}":
