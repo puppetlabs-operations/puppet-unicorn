@@ -40,7 +40,7 @@ define unicorn::app (
       $daemon_opts = "exec unicorn ${unicorn_opts}"
     }
     default: {
-      fail("unicorn::app doesn't install daemon source '${source}'")
+      fail("unicorn::app can't handle daemon source '${source}'")
     }
   }
 
