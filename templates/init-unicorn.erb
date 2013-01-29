@@ -57,10 +57,19 @@ reload() {
     oldpid=$(cat $PIDFILE)
     start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
 
-    sleep 5
-    kill -0 $oldpid 2>/dev/null 1>/dev/null
-    test $? -eq '1'
-    RETVAL=$?
+    RETVAL=1
+
+    # Check the unicorn master up to 10 times to see if it's exited, and return
+    # as soon as possible if it has exited.
+    for second in {1..10}; do
+        sleep 1
+        kill -0 $oldpid 2>/dev/null 1>/dev/null
+        if [ $? -eq '1' ]; then
+            RETVAL=0
+            break
+        fi
+    done
+
     log_end_msg $RETVAL
 }
 
