@@ -28,7 +28,7 @@ define unicorn::app (
     $config = $config_file
   }
 
-  $unicorn_opts = "-D -E '${rack_env}' -c ${config}"
+  $unicorn_opts = "-D -E ${rack_env} -c ${config}"
   # XXX Debian Wheezy specific
   case $source {
     'system': {
