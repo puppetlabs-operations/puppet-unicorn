@@ -17,6 +17,7 @@ define unicorn::app (
 
   # get the common stuff, like the unicorn package(s)
   require unicorn
+  include unicorn::params
 
   # If we have been given a config path, use it, if not, make one up.
   # This _may_ not be the most secure, as it should live outside of
@@ -32,11 +33,11 @@ define unicorn::app (
   # XXX Debian Wheezy specific
   case $source {
     'system': {
-      $daemon = '/usr/local/bin/unicorn'
+      $daemon = $unicorn::params::unicorn_executable
       $daemon_opts = $unicorn_opts
     }
     'bundler': {
-      $daemon = '/usr/local/bin/bundle'
+      $daemon = $unicorn::params::bundler_executable
       $daemon_opts = "exec unicorn ${unicorn_opts}"
     }
     default: {
