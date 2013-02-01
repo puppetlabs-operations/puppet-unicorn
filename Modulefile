@@ -1,5 +1,5 @@
 name 'ploperations-unicorn'
-version '0.9.0'
+version '1.0.0'
 author 'Puppet Labs Operations'
 license 'Apache 2'
 
