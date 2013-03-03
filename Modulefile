@@ -9,3 +9,4 @@ source 'https://github.com/puppetlabs-operations/puppet-unicorn'
 project_page 'https://github.com/puppetlabs-operations/puppet-unicorn'
 
 dependency 'ploperations/bundler',      '>= 0.0.1'
+dependency 'ploperations/rack',         '>= 0.0.1'
