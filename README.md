@@ -13,7 +13,7 @@ Synopsis
       user        => 'sinatra',
       group       => 'sinatra',
       preload_app => true,
-      rack_env    => 'production'
+      rack_env    => 'production',
       source      => 'bundler',
       require     => [
         Class['ruby::dev'],
