@@ -15,7 +15,6 @@ define unicorn::app (
   $source          = 'system',
 ) {
 
-  # get the common stuff, like the unicorn package(s)
   require unicorn
   include unicorn::params
 
@@ -33,11 +32,11 @@ define unicorn::app (
   # XXX Debian Wheezy specific
   case $source {
     'system': {
-      $daemon = $unicorn::params::unicorn_executable
+      $daemon      = $unicorn::params::unicorn_executable
       $daemon_opts = $unicorn_opts
     }
     'bundler': {
-      $daemon = $unicorn::params::bundler_executable
+      $daemon      = $unicorn::params::bundler_executable
       $daemon_opts = "exec unicorn ${unicorn_opts}"
     }
     default: {
