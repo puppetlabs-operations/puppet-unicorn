@@ -8,7 +8,7 @@ define unicorn::app (
   $group           = '0',
   $config_file     = '',
   $config_template = 'unicorn/config_unicorn.config.rb.erb',
-  $initscript      = 'unicorn/init-unicorn.erb',
+  $initscript      = undef,
   $logdir          = "${approot}/log",
   $rack_env        = 'production',
   $preload_app     = false,
@@ -18,7 +18,8 @@ define unicorn::app (
   require unicorn
   include unicorn::params
 
-  $rc_d = $unicorn::params::rc_d
+  $rc_d            = $unicorn::params::rc_d
+  $real_initscript = pick($initscript, $unicorn::params::initscript)
 
   if ! $rc_d {
     fail('unicorn is not supported on this platform')
@@ -75,7 +76,7 @@ define unicorn::app (
     owner   => 'root',
     group   => '0',
     mode    => '0755',
-    content => template($initscript),
+    content => template($real_initscript),
     notify  => Service["unicorn_${name}"],
   }
 

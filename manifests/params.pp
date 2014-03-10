@@ -23,10 +23,12 @@ class unicorn::params {
     'linux': {
       $rc_d        = '/etc/init.d'
       $etc_default = true
+      $initscript  = 'unicorn/init-unicorn.erb'
     }
     'freebsd': {
       $rc_d        = '/usr/local/etc/rc.d'
       $etc_default = false
+      $initscript  = 'unicorn/rc.d-unicorn.erb'
     }
   }
 }
