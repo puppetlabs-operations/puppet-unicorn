@@ -21,10 +21,12 @@ class unicorn::params {
 
   case $::kernel {
     'linux': {
-      $rc_d = '/etc/init.d'
+      $rc_d        = '/etc/init.d'
+      $etc_default = true
     }
     'freebsd': {
-      $rc_d = '/usr/local/etc/rc.d'
+      $rc_d        = '/usr/local/etc/rc.d'
+      $etc_default = false
     }
   }
 }

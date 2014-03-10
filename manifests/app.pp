@@ -57,18 +57,18 @@ define unicorn::app (
     start      => "${rc_d}/unicorn_${name} start",
     stop       => "${rc_d}/unicorn_${name} stop",
     restart    => "${rc_d}/unicorn_${name} reload",
-    require    => [
-      File["${rc_d}/unicorn_${name}"],
-      File["/etc/default/unicorn_${name}"],
-    ],
+    require    => File["${rc_d}/unicorn_${name}"],
   }
 
-  file { "/etc/default/unicorn_${name}":
-    owner   => 'root',
-    group   => '0',
-    mode    => '0644',
-    content => template('unicorn/default-unicorn.erb'),
-    notify  => Service["unicorn_${name}"],
+  if $unicorn::params::etc_default {
+    file { "/etc/default/unicorn_${name}":
+      owner   => 'root',
+      group   => '0',
+      mode    => '0644',
+      content => template('unicorn/default-unicorn.erb'),
+      notify  => Service["unicorn_${name}"],
+      before  => Service["unicorn_${name}"],
+    }
   }
 
   file { "${rc_d}/unicorn_${name}":
