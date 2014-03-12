@@ -1,0 +1,131 @@
+#!/bin/sh
+# Managed by Puppet
+
+# PROVIDE: unicorn_<%= @name %>
+# REQUIRE: LOGIN cleanvar
+# BEFORE:  nginx
+# KEYWORD: shutdown
+
+#
+# unicorn_<%= @name %>_enable (bool):
+#
+
+. /etc/rc.subr
+
+name="unicorn_<%= @name %>"
+rcvar=unicorn_<%= @name %>_enable
+
+load_rc_config "${name}"
+
+: ${unicorn_<%= @name %>_enable="NO"}
+
+command="<%= @daemon %>"
+command_args="<%= @daemon_opts %>"
+command_interpreter=`head -n1 $command | cut -d'!' -f2`
+
+pidfile="<%= @pidfile %>"
+required_files="<%= @config %>"
+required_dirs="<%= @approot %>"
+
+extra_commands="reload reopenlogs"
+reopenlogs_cmd="unicorn_reopen_logs"
+reload_cmd="unicorn_reload"
+
+unicorn_<%= @name %>_chdir="<%= @approot %>"
+<% if @user != 'root' -%>
+unicorn_<%= @name %>_user="<%= @user %>"
+<% end -%>
+<% if @group != '0' && @group != 'wheel' -%>
+unicorn_<%= @name %>_group="<%= @group %>"
+<% end -%>
+
+unicorn_reload() {
+  ret=1
+  kill -USR2 $rc_pid 2>/dev/null
+
+  for second in $(jot 15); do
+    sleep 1
+    kill -0 $rc_pid 2>/dev/null
+    if [ $? -eq '1' ]; then
+      ret=0
+      break
+    fi
+  done
+
+  return $ret
+}
+
+unicorn_reopen_logs() {
+  kill -USR1 $rc_pid 2>/dev/null
+  return $?
+}
+
+# Patch _find_processes to fix check_pidfile.
+# See FreeBSD PR conf/169047 for more information.
+# Please note this has only been tested on FreeBSD 10 so far.
+_find_processes()
+{
+        if [ $# -ne 3 ]; then
+                err 3 'USAGE: _find_processes procname interpreter psargs'
+        fi
+        _procname=$1
+        _interpreter=$2
+        _psargs=$3
+
+        _pref=
+        if [ $_interpreter != "." ]; then       # an interpreted script
+                _script="${_chroot}${_chroot:+/}$_procname"
+                if [ -r "$_script" ]; then
+                        read _interp < $_script # read interpreter name
+                        case "$_interp" in
+                        \#!*)
+                                _interp=${_interp#\#!}  # strip #!
+                                set -- $_interp
+                                case $1 in
+                                */bin/env)
+                                        shift   # drop env to get real name
+                                        ;;
+                                esac
+                                if [ $_interpreter != $1 ]; then
+                                        warn "\$command_interpreter $_interpreter != $1"
+                                fi
+                                ;;
+                        *)
+                                warn "no shebang line in $_script"
+                                set -- $_interpreter
+                                ;;
+                        esac
+                else
+                        warn "cannot read shebang line from $_script"
+                        set -- $_interpreter
+                fi
+                _interp="$* $_procname"         # cleanup spaces, add _procname
+                _interpbn=${1##*/}
+                _procnamebn=${_procname##*/}
+                _fp_args='_argv'
+                _fp_match='case "$_argv" in
+                    ${_interp}|"${_interp} "*|"[${_interpbn}]"|"${_interpbn}: ${_procname}"*|"${_interpbn}: ${_procnamebn}"*)'
+        else                                    # a normal daemon
+                _procnamebn=${_procname##*/}
+                _fp_args='_arg0 _argv'
+                _fp_match='case "$_arg0" in
+                    $_procname|$_procnamebn|${_procnamebn}:|"(${_procnamebn})"|"[${_procnamebn}]")'
+        fi
+
+        _proccheck="\
+                $PS 2>/dev/null -o pid= -o jid= -o command= $_psargs"' |
+                while read _npid _jid '"$_fp_args"'; do
+                        '"$_fp_match"'
+                                if [ "$JID" -eq "$_jid" ];
+                                then echo -n "$_pref$_npid";
+                                _pref=" ";
+                                fi
+                                ;;
+                        esac
+                done'
+
+#       debug "in _find_processes: proccheck is ($_proccheck)."
+        eval $_proccheck
+}
+
+run_rc_command "$1"
