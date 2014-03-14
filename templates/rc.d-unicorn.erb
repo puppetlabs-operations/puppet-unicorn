@@ -19,9 +19,26 @@ load_rc_config "${name}"
 
 : ${unicorn_<%= @name %>_enable="NO"}
 
+read_command_interpreter() {
+  read _interp < $1
+  case "$_interp" in
+  \#!*)
+    _interp=${_interp#\#!}
+    set -- $_interp
+    case $1 in
+    */bin/env)
+      shift
+      ;;
+    esac
+    ;;
+  esac
+  
+  echo $1
+}
+
 command="<%= @daemon %>"
 command_args="<%= @daemon_opts %>"
-command_interpreter=`head -n1 $command | cut -d'!' -f2`
+command_interpreter=$(read_command_interpreter $command)
 
 pidfile="<%= @pidfile %>"
 required_files="<%= @config %>"
