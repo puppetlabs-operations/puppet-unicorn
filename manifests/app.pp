@@ -46,6 +46,10 @@ define unicorn::app (
       $daemon      = $unicorn::params::bundler_executable
       $daemon_opts = "exec unicorn ${unicorn_opts}"
     }
+    /\/bin\/unicorn$/: {
+      $daemon      = $source
+      $daemon_opts = $unicorn_opts
+    }
     default: {
       fail("unicorn::app can't handle daemon source '${source}'")
     }
