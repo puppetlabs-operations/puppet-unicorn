@@ -3,7 +3,6 @@
 
 # PROVIDE: unicorn_<%= @name %>
 # REQUIRE: LOGIN cleanvar
-# BEFORE:  nginx
 # KEYWORD: shutdown
 
 #
@@ -17,11 +16,29 @@ rcvar=unicorn_<%= @name %>_enable
 
 load_rc_config "${name}"
 
-: ${unicorn_<%= @name %>_enable="NO"}
+: ${unicorn_<%= @name %>_enable:="NO"}
+
+read_command_interpreter() {
+	read _interp < $1
+	case "$_interp" in
+	\#!*)
+		_interp=${_interp#\#!}
+		set -- $_interp
+		case $1 in
+		*/bin/env)
+			shift
+			;;
+		esac
+		;;
+	esac
+
+	echo $1
+}
 
 command="<%= @daemon %>"
 command_args="<%= @daemon_opts %>"
-command_interpreter=`head -n1 $command | cut -d'!' -f2`
+command_interpreter=$(read_command_interpreter $command)
+procname="unicorn" # will warn about not being able to read interpreter :(
 
 pidfile="<%= @pidfile %>"
 required_files="<%= @config %>"
@@ -30,6 +47,7 @@ required_dirs="<%= @approot %>"
 extra_commands="reload reopenlogs"
 reopenlogs_cmd="unicorn_reopen_logs"
 reload_cmd="unicorn_reload"
+start_precmd="unicorn_environment"
 
 unicorn_<%= @name %>_chdir="<%= @approot %>"
 <% if @user != 'root' -%>
@@ -40,92 +58,81 @@ unicorn_<%= @name %>_group="<%= @group %>"
 <% end -%>
 
 unicorn_reload() {
-  ret=1
-  kill -USR2 $rc_pid 2>/dev/null
+	ret=1
+	kill -USR2 $rc_pid 2>/dev/null
 
-  for second in $(jot 15); do
-    sleep 1
-    kill -0 $rc_pid 2>/dev/null
-    if [ $? -eq '1' ]; then
-      ret=0
-      break
-    fi
-  done
+	for second in $(jot 15); do
+		sleep 1
+		kill -0 $rc_pid 2>/dev/null
+		if [ $? -eq '1' ]; then
+			ret=0
+			break
+		fi
+	done
 
-  return $ret
+	return $ret
 }
 
 unicorn_reopen_logs() {
-  kill -USR1 $rc_pid 2>/dev/null
-  return $?
+	kill -USR1 $rc_pid 2>/dev/null
+ 	return $?
 }
 
-# Patch _find_processes to fix check_pidfile.
-# See FreeBSD PR conf/169047 for more information.
-# Please note this has only been tested on FreeBSD 10 so far.
-_find_processes()
-{
-        if [ $# -ne 3 ]; then
-                err 3 'USAGE: _find_processes procname interpreter psargs'
-        fi
-        _procname=$1
-        _interpreter=$2
-        _psargs=$3
+unicorn_contains() {
+	_needle=$1
+	_haystack=$2
 
-        _pref=
-        if [ $_interpreter != "." ]; then       # an interpreted script
-                _script="${_chroot}${_chroot:+/}$_procname"
-                if [ -r "$_script" ]; then
-                        read _interp < $_script # read interpreter name
-                        case "$_interp" in
-                        \#!*)
-                                _interp=${_interp#\#!}  # strip #!
-                                set -- $_interp
-                                case $1 in
-                                */bin/env)
-                                        shift   # drop env to get real name
-                                        ;;
-                                esac
-                                if [ $_interpreter != $1 ]; then
-                                        warn "\$command_interpreter $_interpreter != $1"
-                                fi
-                                ;;
-                        *)
-                                warn "no shebang line in $_script"
-                                set -- $_interpreter
-                                ;;
-                        esac
-                else
-                        warn "cannot read shebang line from $_script"
-                        set -- $_interpreter
-                fi
-                _interp="$* $_procname"         # cleanup spaces, add _procname
-                _interpbn=${1##*/}
-                _procnamebn=${_procname##*/}
-                _fp_args='_argv'
-                _fp_match='case "$_argv" in
-                    ${_interp}|"${_interp} "*|"[${_interpbn}]"|"${_interpbn}: ${_procname}"*|"${_interpbn}: ${_procnamebn}"*)'
-        else                                    # a normal daemon
-                _procnamebn=${_procname##*/}
-                _fp_args='_arg0 _argv'
-                _fp_match='case "$_arg0" in
-                    $_procname|$_procnamebn|${_procnamebn}:|"(${_procnamebn})"|"[${_procnamebn}]")'
-        fi
+	case "${_haystack}" in
+	*${_needle}*)
+		return 0
+		;;
+	*)
+		return 1
+		;;
+	esac
+}
 
-        _proccheck="\
-                $PS 2>/dev/null -o pid= -o jid= -o command= $_psargs"' |
-                while read _npid _jid '"$_fp_args"'; do
-                        '"$_fp_match"'
-                                if [ "$JID" -eq "$_jid" ];
-                                then echo -n "$_pref$_npid";
-                                _pref=" ";
-                                fi
-                                ;;
-                        esac
-                done'
+unicorn_append_command_paths() {
+	local _command
+	local _command_path
+	local _command_interp
 
-#       debug "in _find_processes: proccheck is ($_proccheck)."
-        eval $_proccheck
+	_command=$command
+	_command_interp=$command_interpreter
+
+	# Add the path to $command to PATH
+	_command_path=$(dirname $_command)
+	unicorn_contains $_command_path $PATH || export PATH=$PATH:$_command_path
+
+	# Add the interpreter path of $command to PATH
+	if [ -n $_command_interp -a -r $_command_interp ]; then
+		_command_path=$(dirname $_command_interp)
+		unicorn_contains $_command_path $PATH || export PATH=$PATH:$_command_path
+	fi
+
+	return 0
+}
+
+unicorn_bundle_gemfile() {
+	local _chdir
+	local _dirs
+
+	eval _chdir=\$${name}_chdir
+	_dirs=${required_dirs}
+	unicorn_contains "${_chdir}" "${_dirs}" || _dirs="${_dirs} ${_chdir}"
+
+	for _dir in ${_dirs}; do
+		debug "Checking $_dir for Gemfile"
+		test -f "${_dir}/Gemfile" && export BUNDLE_GEMFILE="${_dir}/Gemfile"
+	done
+
+	return 0
+}
+
+unicorn_environment() {
+	unicorn_append_command_paths &&
+	unicorn_bundle_gemfile
+	return $?
 }
 
 run_rc_command "$1"
