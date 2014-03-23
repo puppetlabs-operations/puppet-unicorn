@@ -129,8 +129,29 @@ unicorn_bundle_gemfile() {
 	return 0
 }
 
+unicorn_check_rbenv() {
+	local _user
+	local _home
+	local _rbenv
+
+	eval _user=\$${name}_user
+	test -z $_user && return 0
+
+	eval _home="~${_user}/"
+	_rbenv="${_home}/.rbenv"
+
+	if [ -d $_rbenv ]; then
+		unicorn_contains "${_rbenv}/bin" "${PATH}" && export PATH=${_rbenv}/bin:$PATH
+		unicorn_contains "${_rbenv}/shims" "${PATH}" && export PATH=${_rbenv}/shims:$PATH
+	fi
+
+	return 0
+}
+
 unicorn_environment() {
 	unicorn_append_command_paths &&
+	unicorn_check_rbenv &&
+	# unicorn_check_rvm - at some point
 	unicorn_bundle_gemfile
 	return $?
 }
