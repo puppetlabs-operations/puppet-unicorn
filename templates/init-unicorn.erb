@@ -1,6 +1,6 @@
 #!/bin/bash
 # unicorn-puppet         This init script enables something in unicorn, with
-#                        rackup, for <%= name %>
+#                        rackup, for <%= @name %>
 #
 # Authors:               Richard Crowley
 #                        Naresh V.
@@ -10,29 +10,29 @@
 #
 
 ### BEGIN INIT INFO
-# Provides:          unicorn_<%= name %>
+# Provides:          unicorn_<%= @name %>
 # Required-Start:
 # Required-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: <%= name %> runnning in Unicorn
+# Short-Description: <%= @name %> runnning in Unicorn
 ### END INIT INFO
 
-. /etc/default/unicorn_<%= name %>
+. /etc/default/unicorn_<%= @name %>
 
 RETVAL=0
 
 . /lib/lsb/init-functions
 
 start() {
-    log_daemon_msg "Starting Unicorn server" "unicorn_<%= name %>"
+    log_daemon_msg "Starting Unicorn server" "unicorn_<%= @name %>"
     start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --chdir $APPROOT --startas $DAEMON -- $DAEMON_OPTS
     RETVAL=$?
     log_end_msg $RETVAL
 }
 
 stop() {
-    log_daemon_msg "Stopping Unicorn server" "unicorn_<%= name %>"
+    log_daemon_msg "Stopping Unicorn server" "unicorn_<%= @name %>"
     start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
     RETVAL=$?
     log_end_msg $RETVAL
@@ -51,7 +51,7 @@ restart() {
 # failed; if it's dead, the reload succeeded.
 #
 reload() {
-    log_daemon_msg "Reloading Unicorn master and worker processes" <%= name %>
+    log_daemon_msg "Reloading Unicorn master and worker processes" <%= @name %>
 
     oldpid=$(cat $PIDFILE)
     start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
@@ -73,7 +73,7 @@ reload() {
 }
 
 reopen_logs() {
-    log_daemon_msg "Reopening Unicorn logs" <%= name %>
+    log_daemon_msg "Reopening Unicorn logs" <%= @name %>
     start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE
     RETVAL=$?
     log_end_msg $RETVAL
@@ -96,7 +96,7 @@ case "$1" in
         reopen_logs
         ;;
     status)
-        status_of_proc -p "$PIDFILE" 'unicorn_<%= name %>' '<%= name %>'
+        status_of_proc -p "$PIDFILE" 'unicorn_<%= @name %>' '<%= @name %>'
         RETVAL=$?
         ;;
     *)

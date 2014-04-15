@@ -1,11 +1,11 @@
 # This is the configuration for running apps with unicorn.
 # See original here: http://projects.puppetlabs.com/projects/1/wiki/Using_Unicorn
 
-worker_processes <%= workers %>
-working_directory '<%= approot %>'
-listen '<%= socket %>', :backlog => <%= backlog %>
+worker_processes <%= @workers %>
+working_directory '<%= @approot %>'
+listen '<%= @socket %>', :backlog => <%= @backlog %>
 timeout 300
-pid "<%= pidfile %>"
+pid "<%= @pidfile %>"
 client_body_buffer_size 524288
 
 <% if @logdir -%>
@@ -13,7 +13,7 @@ stderr_path '<%= @logdir %>/stderr.log'
 stdout_path '<%= @logdir %>/stdout.log'
 <% end -%>
 
-preload_app <%= preload_app %>
+preload_app <%= @preload_app %>
 
 # See http://unicorn.bogomips.org/SIGNALS.html for what this does.
 before_fork do |server, worker|

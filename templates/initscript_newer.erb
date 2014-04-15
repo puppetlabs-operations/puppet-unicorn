@@ -20,19 +20,19 @@
 
 
 APP_ROOT=<%= approot %> # we don't need this, as the config contains the worker dir.
-lockfile=/var/lock/unicorn-<%= name %>
-PIDFILE="<%= unicorn_pidfile %>"
+lockfile=/var/lock/unicorn-<%= @name %>
+PIDFILE="<%= @unicorn_pidfile %>"
 
 ENV=production
 RETVAL=0
 DAEMON="/var/lib/gems/1.8/bin/unicorn"
-DAEMON_OPTS="-D -E ${ENV} -c <%= config %>"
+DAEMON_OPTS="-D -E ${ENV} -c <%= @config %>"
 export RAILS_ENV="$ENV"
 
 . /lib/lsb/init-functions
 
 start() {
-    log_daemon_msg "Starting Unicorn server for <%= name %>" "unicorn_<%= name %>"
+    log_daemon_msg "Starting Unicorn server for <%= name %>" "unicorn_<%= @name %>"
     if start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS; then
       log_end_msg 0
     else
@@ -41,7 +41,7 @@ start() {
 }
 
 stop() {
-    log_daemon_msg "Stopping Unicorn server for <%= name %>" "unicorn_<%= name %>"
+    log_daemon_msg "Stopping Unicorn server for <%= @name %>" "unicorn_<%= @name %>"
     if start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE; then
       log_end_msg 0
     else
@@ -71,9 +71,9 @@ case "$1" in
         ;;
     reopen-logs)
         # I am unsure about the use of echos here.
-        echo -n "Reopening <%= name %> logs: "
+        echo -n "Reopening <%= @name %> logs: "
         start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE
-        echo "<%= name %>."
+        echo "<%= @name %>."
         ;;
 
     status)
