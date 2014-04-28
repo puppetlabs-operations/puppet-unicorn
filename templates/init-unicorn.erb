@@ -60,7 +60,7 @@ reload() {
 
     # Recheck the old unicorn master process times to see if it's exited, and
     # return as soon as it has exited.
-    for second in {1..15}; do
+    for second in {1..60}; do
         sleep 1
         kill -0 $oldpid 2>/dev/null 1>/dev/null
         if [ $? -eq '1' ]; then
