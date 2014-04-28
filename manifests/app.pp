@@ -9,6 +9,7 @@ define unicorn::app (
   $config_file     = '',
   $config_template = 'unicorn/config_unicorn.config.rb.erb',
   $initscript      = undef,
+  $init_time       = 15,
   $logdir          = "${approot}/log",
   $rack_env        = 'production',
   $preload_app     = false,
