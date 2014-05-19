@@ -1,5 +1,7 @@
 # This is the configuration for running apps with unicorn.
 # See original here: http://projects.puppetlabs.com/projects/1/wiki/Using_Unicorn
+RACK_ENV = ENV['RACK_ENV'] ||= 'development'  unless defined?(RACK_ENV)
+RAILS_ENV = ENV['RAILS_ENV'] ||= 'development'  unless defined?(RAILS_ENV)
 
 worker_processes <%= @workers %>
 working_directory '<%= @approot %>'
