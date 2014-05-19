@@ -56,16 +56,6 @@ define unicorn::app (
     }
   }
 
-  service { "unicorn_${name}":
-    ensure     => running,
-    enable     => true,
-    hasstatus  => true,
-    start      => "${rc_d}/unicorn_${name} start",
-    stop       => "${rc_d}/unicorn_${name} stop",
-    restart    => "${rc_d}/unicorn_${name} reload",
-    require    => File["${rc_d}/unicorn_${name}"],
-  }
-
   if $unicorn::params::etc_default {
     file { "/etc/default/unicorn_${name}":
       owner   => 'root',
@@ -78,6 +68,16 @@ define unicorn::app (
   }
 
   if $manage_service {
+    service { "unicorn_${name}":
+      ensure     => running,
+      enable     => true,
+      hasstatus  => true,
+      start      => "${rc_d}/unicorn_${name} start",
+      stop       => "${rc_d}/unicorn_${name} stop",
+      restart    => "${rc_d}/unicorn_${name} reload",
+      require    => File["${rc_d}/unicorn_${name}"],
+    }
+
     file { "${rc_d}/unicorn_${name}":
       owner   => 'root',
       group   => '0',
