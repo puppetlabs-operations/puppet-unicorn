@@ -2,17 +2,18 @@ define unicorn::app (
   $approot,
   $pidfile,
   $socket,
-  $backlog         = '2048',
-  $workers         = $::processorcount,
-  $user            = 'root',
-  $group           = '0',
-  $config_file     = '',
-  $config_template = 'unicorn/config_unicorn.config.rb.erb',
-  $initscript      = undef,
-  $logdir          = "${approot}/log",
-  $rack_env        = 'production',
-  $preload_app     = false,
-  $source          = 'system',
+  $backlog            = '2048',
+  $workers            = $::processorcount,
+  $user               = 'root',
+  $group              = '0',
+  $config_file        = '',
+  $config_template    = 'unicorn/config_unicorn.config.rb.erb',
+  $initscript         = undef,
+  $manage_service     = true,
+  $logdir             = "${approot}/log",
+  $rack_env           = 'production',
+  $preload_app        = false,
+  $source             = 'system',
 ) {
 
   require unicorn
@@ -76,12 +77,14 @@ define unicorn::app (
     }
   }
 
-  file { "${rc_d}/unicorn_${name}":
-    owner   => 'root',
-    group   => '0',
-    mode    => '0755',
-    content => template($real_initscript),
-    notify  => Service["unicorn_${name}"],
+  if $manage_service {
+    file { "${rc_d}/unicorn_${name}":
+      owner   => 'root',
+      group   => '0',
+      mode    => '0755',
+      content => template($real_initscript),
+      notify  => Service["unicorn_${name}"],
+    }
   }
 
   file { $config:
