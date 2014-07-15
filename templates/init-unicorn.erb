@@ -24,6 +24,12 @@ RETVAL=0
 
 . /lib/lsb/init-functions
 
+<% unless (@export_home.empty?) %>
+# Force a HOME environment
+# Needed for a puppet master running on unicorn
+export HOME=<%= @export_home %>
+<% end %>
+
 start() {
     log_daemon_msg "Starting Unicorn server" "unicorn_<%= @name %>"
     start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --chdir $APPROOT --startas $DAEMON -- $DAEMON_OPTS

@@ -1,4 +1,5 @@
 class unicorn(
+  $export_home = '',
   $ensure   = 'present',
   $provider = 'gem',
 ) {
