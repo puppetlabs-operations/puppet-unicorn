@@ -2,6 +2,7 @@ define unicorn::app (
   $approot,
   $pidfile,
   $socket,
+  $export_home     = '',
   $backlog         = '2048',
   $workers         = $::processorcount,
   $user            = 'root',
