@@ -24,7 +24,7 @@ RETVAL=0
 
 . /lib/lsb/init-functions
 
-<% unless (@export_home.empty?) %>
+<% unless (@export_home.nil?) %>
 # Force a HOME environment
 # Needed for a puppet master running on unicorn
 export HOME=<%= @export_home %>
