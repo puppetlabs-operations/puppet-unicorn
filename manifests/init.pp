@@ -6,7 +6,7 @@ class unicorn(
 
   # The unicorn gem has prerequisites that requires building native extensions.
   require ruby::dev
-  include rack
+  #include rack
 
   package { 'unicorn':
     ensure   => $ensure,
