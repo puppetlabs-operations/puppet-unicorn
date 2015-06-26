@@ -1,120 +1,69 @@
 #!/bin/bash
-# unicorn-puppet         This init script enables something in unicorn, with
-#                        rackup, for <%= @name %>
-#
-# Authors:               Richard Crowley
-#                        Naresh V.
-#
-#    Modified for Debian usage by Matt Carroll
-#    Modified for Debian 6+ usage by Zach Leslie
-#
-
 ### BEGIN INIT INFO
-# Provides:          unicorn_<%= @name %>
-# Required-Start:
-# Required-Stop:
+# Provides:          APPLICATION
+# Required-Start:    $all
+# Required-Stop:     $network $local_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: <%= @name %> runnning in Unicorn
+# Short-Description: Start the APPLICATION unicorns at boot
+# Description:       Enable APPLICATION at boot time.
 ### END INIT INFO
+#
+# Use this as a basis for your own Unicorn init script.
+# Change APPLICATION to match your app.
+# Make sure that all paths are correct.
+
+set -u
+set -e
 
 . /etc/default/unicorn_<%= @name %>
 
-RETVAL=0
+UNICORN_OPTS="-D -E $ENV -c $APP_ROOT/config/unicorn.config.rb"
 
-. /lib/lsb/init-functions
+SET_PATH="cd $APP_ROOT; rvm use 2.1.0; export GEM_HOME=$GEM_HOME"
+CMD="$SET_PATH; $GEM_HOME/bin/unicorn $UNICORN_OPTS"
 
-<% unless (@export_home.empty?) %>
-# Force a HOME environment
-# Needed for a puppet master running on unicorn
-export HOME=<%= @export_home %>
-<% end %>
+old_pid="$PID.oldbin"
 
-start() {
-    log_daemon_msg "Starting Unicorn server" "unicorn_<%= @name %>"
-    start-stop-daemon --start --quiet --oknodo --user "${USER:-root}" --pidfile $PIDFILE --chdir $APPROOT --startas $DAEMON -- $DAEMON_OPTS
-    RETVAL=$?
-    log_end_msg $RETVAL
+cd $APP_ROOT || exit 1
+
+sig () {
+	test -s "$PID" && kill -$1 `cat $PID`
 }
 
-stop() {
-    log_daemon_msg "Stopping Unicorn server" "unicorn_<%= @name %>"
-    start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
-    RETVAL=$?
-    log_end_msg $RETVAL
+oldsig () {
+	test -s $old_pid && kill -$1 `cat $old_pid`
 }
 
-restart() {
-    stop
-    sleep 1
-    start
-}
-
-# Issue a hot reload of the unicorn master process.
-#
-# Status checking is done by grabbing the old PID, trying the reload, waiting,
-# and making sure the old master process is dead. If it's alive, the reload
-# failed; if it's dead, the reload succeeded.
-#
-reload() {
-    oldpid=$(cat $PIDFILE 2> /dev/null)
-
-    if [ -z $oldpid ]; then
-      # It appears unicorn was not already running, so just start it.
-      start
-    else
-      log_daemon_msg "Reloading Unicorn master and worker processes" <%= @name %>
-      start-stop-daemon --stop --quiet --signal USR2 --pidfile $PIDFILE
-
-      RETVAL=1
-
-      # Recheck the old unicorn master process times to see if it's exited, and
-      # return as soon as it has exited.
-      for second in {1..<%= @init_time %>}; do
-          sleep 1
-          kill -0 $oldpid 2>/dev/null 1>/dev/null
-          if [ $? -eq '1' ]; then
-              RETVAL=0
-              break
-          fi
-      done
-
-      log_end_msg $RETVAL
-    fi
-  }
-
-reopen_logs() {
-    log_daemon_msg "Reopening Unicorn logs" <%= @name %>
-    start-stop-daemon --stop --quiet --signal USR1 --pidfile $PIDFILE
-    RETVAL=$?
-    log_end_msg $RETVAL
-}
-
-case "$1" in
-    start)
-        start
-        ;;
-    stop)
-        stop
-        ;;
-    restart)
-        restart
-        ;;
-    reload)
-        reload
-        ;;
-    reopen-logs)
-        reopen_logs
-        ;;
-    status)
-        status_of_proc -p "$PIDFILE" 'unicorn_<%= @name %>' '<%= @name %>'
-        RETVAL=$?
-        ;;
-    *)
-        echo "Usage: $0 {start|stop|restart|status}" >&2
-        exit 1
-        ;;
+case ${1-help} in
+start)
+	sig 0 && echo >&2 "Already running" && exit 0
+	su - $USER -c "$CMD"
+	;;
+stop)
+	sig QUIT && exit 0
+	echo >&2 "Not running"
+	;;
+force-stop)
+	sig TERM && exit 0
+	echo >&2 "Not running"
+	;;
+restart|reload)
+	sig HUP && echo reloaded OK && exit 0
+	echo >&2 "Couldn't reload, starting '$CMD' instead"
+	su - $USER -c "$CMD"
+	;;
+upgrade)
+	sig USR2 && exit 0
+	echo >&2 "Couldn't upgrade, starting '$CMD' instead"
+	su - $USER -c "$CMD"
+	;;
+rotate)
+	sig USR1 && echo rotated logs OK && exit 0
+	echo >&2 "Couldn't rotate logs" && exit 1
+	;;
+*)
+ 	echo >&2 "Usage: $0 <start|stop|restart|upgrade|rotate|force-stop>"
+ 	exit 1
+ 	;;
 esac
-
-exit $RETVAL
-
