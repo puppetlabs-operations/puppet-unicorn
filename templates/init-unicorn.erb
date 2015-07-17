@@ -49,7 +49,7 @@ force-stop)
 	echo >&2 "Not running"
 	;;
 restart)
-	sig QUIT && exit 0
+	sig QUIT
 	echo >&2 "Not running"
 	su - $USER -c "$CMD"
 	;;
