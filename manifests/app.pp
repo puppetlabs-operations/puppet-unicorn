@@ -97,7 +97,7 @@ define unicorn::app (
   }
 
   if $logrotate {
-    file { "/etc/logrotate.d/unicorn_${name}"
+    file { "/etc/logrotate.d/unicorn_${name}":
       ensure   => file,
       content  => template('logrotate.erb'),
       mode     => '0644',
