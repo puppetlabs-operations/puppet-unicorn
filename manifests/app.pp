@@ -16,6 +16,7 @@ define unicorn::app (
   $rack_env        = 'production',
   $preload_app     = false,
   $source          = 'system',
+  $logrotate       = false,
 ) {
 
   #require unicorn
@@ -93,5 +94,15 @@ define unicorn::app (
     mode    => '0644',
     content => template($config_template),
     notify  => Service["unicorn_${name}"];
+  }
+
+  if $logrotate {
+    file { "/etc/logrotate.d/unicorn_${name}"
+      ensure   => file,
+      content  => template('logrotate.erb'),
+      mode     => '0644',
+      owner    => root,
+      group    => root;
+    }
   }
 }
