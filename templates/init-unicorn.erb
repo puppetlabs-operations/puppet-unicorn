@@ -18,9 +18,9 @@ set -e
 
 . /etc/default/unicorn_<%= @name %>
 
-UNICORN_OPTS="-D -E $ENV -c $APP_ROOT/config/unicorn.config.rb"
+UNICORN_OPTS="-D -E $ENV -c <%= @config %>"
 
-SET_PATH="cd $APP_ROOT; rvm use 2.1.0; export GEM_HOME=$GEM_HOME"
+SET_PATH="cd $APP_ROOT; rvm use <%= @rvm_version %>; export GEM_HOME=$GEM_HOME"
 CMD="$SET_PATH; $GEM_HOME/bin/unicorn $UNICORN_OPTS"
 
 old_pid="$PID.oldbin"
