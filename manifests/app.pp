@@ -2,6 +2,7 @@ define unicorn::app (
   $approot,
   $pidfile,
   $socket,
+  $gem_home,
   $export_home     = '',
   $backlog         = '2048',
   $workers         = $::processorcount,
@@ -15,9 +16,11 @@ define unicorn::app (
   $rack_env        = 'production',
   $preload_app     = false,
   $source          = 'system',
+  $logrotate       = false,
+  $rvm_version     = '2.1.0',
 ) {
 
-  require unicorn
+  #require unicorn
   include unicorn::params
 
   $rc_d            = $unicorn::params::rc_d
@@ -37,20 +40,20 @@ define unicorn::app (
     $config = $config_file
   }
 
-  $unicorn_opts = "--daemonize --env ${rack_env} --config-file ${config}"
+  #$unicorn_opts = "--daemonize --env ${rack_env} --config-file ${config}"
   # XXX Debian Wheezy specific
   case $source {
     'system': {
       $daemon      = $unicorn::params::unicorn_executable
-      $daemon_opts = $unicorn_opts
+      #$daemon_opts = $unicorn_opts
     }
     'bundler': {
       $daemon      = $unicorn::params::bundler_executable
-      $daemon_opts = "exec unicorn ${unicorn_opts}"
+      #$daemon_opts = "exec unicorn ${unicorn_opts}"
     }
     /\/bin\/unicorn$/: {
       $daemon      = $source
-      $daemon_opts = $unicorn_opts
+      #$daemon_opts = $unicorn_opts
     }
     default: {
       fail("unicorn::app can't handle daemon source '${source}'")
@@ -58,13 +61,13 @@ define unicorn::app (
   }
 
   service { "unicorn_${name}":
-    ensure     => running,
-    enable     => true,
-    hasstatus  => true,
-    start      => "${rc_d}/unicorn_${name} start",
-    stop       => "${rc_d}/unicorn_${name} stop",
-    restart    => "${rc_d}/unicorn_${name} reload",
-    require    => File["${rc_d}/unicorn_${name}"],
+    ensure    => running,
+    enable    => true,
+    hasstatus => true,
+    start     => "${rc_d}/unicorn_${name} start",
+    stop      => "${rc_d}/unicorn_${name} stop",
+    restart   => "${rc_d}/unicorn_${name} reload",
+    require   => File["${rc_d}/unicorn_${name}"],
   }
 
   if $unicorn::params::etc_default {
@@ -92,5 +95,15 @@ define unicorn::app (
     mode    => '0644',
     content => template($config_template),
     notify  => Service["unicorn_${name}"];
+  }
+
+  if $logrotate {
+    file { "/etc/logrotate.d/unicorn_${name}":
+      ensure   => file,
+      content  => template('unicorn/logrotate.erb'),
+      mode     => '0644',
+      owner    => root,
+      group    => root;
+    }
   }
 }
