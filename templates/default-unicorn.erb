@@ -16,3 +16,7 @@ PIDFILE="<%= @pidfile %>"
 
 export RAILS_ENV="$ENV"
 export RACK_ENV="$ENV"
+
+<% @extra_settings.sort.each do |variable, setting| -%>
+<%= variable.to_s %>="<%= setting.to_s %>"
+<% end -%>
