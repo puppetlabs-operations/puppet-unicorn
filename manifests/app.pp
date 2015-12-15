@@ -15,6 +15,7 @@ define unicorn::app (
   $rack_env        = 'production',
   $preload_app     = false,
   $source          = 'system',
+  $extra_settings  = {},
 ) {
 
   require unicorn
