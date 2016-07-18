@@ -84,7 +84,16 @@ define unicorn::app (
     group   => '0',
     mode    => '0755',
     content => template($real_initscript),
-    notify  => Service["unicorn_${name}"],
+    notify  => [Exec["enable systemd config for unicorn_${name}"], Service["unicorn_${name}"]],
+  }
+
+  # Workaround https://tickets.puppetlabs.com/browse/PUP-4605
+  exec { "enable systemd config for unicorn_${name}":
+    command     => "systemctl enable unicorn_${name}",
+    onlyif      => "which systemctl",
+    path        => ['/bin', '/usr/bin'],
+    refreshonly => true,
+    before      => Service["unicorn_${name}"]
   }
 
   file { $config:
