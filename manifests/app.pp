@@ -49,7 +49,8 @@ define unicorn::app (
       $daemon      = $unicorn::params::bundler_executable
       $daemon_opts = "exec unicorn ${unicorn_opts}"
     }
-    /\/bin\/unicorn$/: {
+    /[a-z]/: {
+      # A path to an executable
       $daemon      = $source
       $daemon_opts = $unicorn_opts
     }
