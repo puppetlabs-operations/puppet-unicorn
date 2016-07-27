@@ -59,33 +59,47 @@ define unicorn::app (
     }
   }
 
-  service { "unicorn_${name}":
-    ensure     => running,
-    enable     => true,
-    hasstatus  => true,
-    start      => "${rc_d}/unicorn_${name} start",
-    stop       => "${rc_d}/unicorn_${name} stop",
-    restart    => "${rc_d}/unicorn_${name} reload",
-    require    => File["${rc_d}/unicorn_${name}"],
-  }
-
-  if $unicorn::params::etc_default {
-    file { "/etc/default/unicorn_${name}":
+  if $facts['service_provider'] == 'systemd' {
+    file { "/etc/systemd/system/unicorn_${name}.service":
       owner   => 'root',
       group   => '0',
       mode    => '0644',
-      content => template('unicorn/default-unicorn.erb'),
-      notify  => Service["unicorn_${name}"],
-      before  => Service["unicorn_${name}"],
+      content => template('unicorn/systemd/unicorn.service.erb'),
     }
-  }
+    ~>
+    service { "unicorn_${name}":
+      ensure => running,
+      enable => true,
+    }
+  } else {
+    service { "unicorn_${name}":
+      ensure     => running,
+      enable     => true,
+      hasstatus  => true,
+      start      => "${rc_d}/unicorn_${name} start",
+      stop       => "${rc_d}/unicorn_${name} stop",
+      restart    => "${rc_d}/unicorn_${name} reload",
+      require    => File["${rc_d}/unicorn_${name}"],
+    }
 
-  file { "${rc_d}/unicorn_${name}":
-    owner   => 'root',
-    group   => '0',
-    mode    => '0755',
-    content => template($real_initscript),
-    notify  => Service["unicorn_${name}"],
+    if $unicorn::params::etc_default {
+      file { "/etc/default/unicorn_${name}":
+        owner   => 'root',
+        group   => '0',
+        mode    => '0644',
+        content => template('unicorn/default-unicorn.erb'),
+        notify  => Service["unicorn_${name}"],
+        before  => Service["unicorn_${name}"],
+      }
+    }
+
+    file { "${rc_d}/unicorn_${name}":
+      owner   => 'root',
+      group   => '0',
+      mode    => '0755',
+      content => template($real_initscript),
+      notify  => Service["unicorn_${name}"],
+    }
   }
 
   file { $config:

@@ -1,0 +1,24 @@
+# Managed by Puppet. Changes will be overwritten.
+
+[Unit]
+Description=Unicorn for <%= @name %>
+After=syslog.target
+After=network.target
+
+[Service]
+Type=forking
+Restart=always
+WorkingDirectory=<%= @approot %>
+PIDFile=<%= @pidfile %>
+
+Environment="RAILS_ENV=<%= @rack_env %>"
+Environment="RACK_ENV=<%= @rack_env %>"
+<% @extra_settings.sort.each do |variable, setting| -%>
+Environment="<%= variable %>=<%= setting %>"
+<% end -%>
+
+ExecStart=<%= @daemon %> <%= @daemon_opts %>
+KillSignal=SIGQUIT
+
+[Install]
+WantedBy=multi-user.target
