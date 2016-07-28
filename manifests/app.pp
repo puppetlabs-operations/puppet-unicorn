@@ -6,7 +6,7 @@ define unicorn::app (
   $backlog         = '2048',
   $workers         = $::processorcount,
   $user            = 'root',
-  $group           = '0',
+  $group           = 'root',
   $config_file     = '',
   $config_template = 'unicorn/config_unicorn.config.rb.erb',
   $initscript      = undef,
