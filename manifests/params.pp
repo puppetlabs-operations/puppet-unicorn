@@ -13,17 +13,7 @@ class unicorn::params {
         }
       }
     }
-    'ubuntu': {
-      $unicorn_executable = '/usr/local/bin/unicorn'
-      $bundler_executable = '/usr/local/bin/bundle'
-    }
-
-    'freebsd': {
-      $unicorn_executable = '/usr/local/bin/unicorn'
-      $bundler_executable = '/usr/local/bin/bundle'
-    }
-
-    'centos': {
+    default: {
       $unicorn_executable = '/usr/local/bin/unicorn'
       $bundler_executable = '/usr/local/bin/bundle'
     }
