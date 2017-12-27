@@ -1,7 +1,7 @@
 class unicorn::params {
 
   case $::operatingsystem {
-    'debian', 'ubuntu': {
+    'debian': {
       case $::lsbmajdistrelease {
         '6': {
           $unicorn_executable = '/var/lib/gems/1.8/bin/unicorn'
@@ -13,12 +13,7 @@ class unicorn::params {
         }
       }
     }
-    'ubuntu': {
-      $unicorn_executable = '/usr/local/bin/unicorn'
-      $bundler_executable = '/usr/local/bin/bundle'
-    }
-
-    'freebsd': {
+    default: {
       $unicorn_executable = '/usr/local/bin/unicorn'
       $bundler_executable = '/usr/local/bin/bundle'
     }
