@@ -18,6 +18,7 @@ Environment="<%= variable %>=<%= setting %>"
 <% end -%>
 
 ExecStart=<%= @daemon %> <%= @daemon_opts %>
+ExecReload=/bin/kill -s USR2 $MAINPID
 KillSignal=SIGQUIT
 
 [Install]

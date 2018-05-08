@@ -60,14 +60,18 @@ define unicorn::app (
   }
 
   if $facts['service_provider'] == 'systemd' {
+    include systemd::systemctl::daemon_reload
+
     file { "/etc/systemd/system/unicorn_${name}.service":
       owner   => 'root',
       group   => '0',
       mode    => '0644',
       content => template('unicorn/systemd/unicorn.service.erb'),
     }
-    ~>
-    service { "unicorn_${name}":
+
+    ~> Class['systemd::systemctl::daemon_reload']
+
+    ~> service { "unicorn_${name}":
       ensure => running,
       enable => true,
     }
