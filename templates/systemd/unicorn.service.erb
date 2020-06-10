@@ -4,6 +4,7 @@
 Description=Unicorn for <%= @name %>
 After=syslog.target
 After=network.target
+ConditionPathExists=<%= @approot %>
 
 [Service]
 Type=forking
