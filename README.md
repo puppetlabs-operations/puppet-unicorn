@@ -1,6 +1,8 @@
 puppet-unicorn
 ==============
 
+This repository has been archived and migrated to [ploperations/ploperations-unicorn](https://github.com/ploperations/ploperations-unicorn)
+
 Install and run unicorn.
 
 Synopsis
